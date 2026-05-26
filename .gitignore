@@ -1,5 +1,11 @@
 .claude/
 .phpunit.cache/
+.phpunit.result.cache
 vendor/
 composer.lock
 CLAUDE.md
+
+# Artefatos de build / runtime
+/api.zip
+/database/*.sqlite
+/database/*.sqlite-journal
