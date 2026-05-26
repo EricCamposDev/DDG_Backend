@@ -1,0 +1,35 @@
+{
+    "name": "ddg/backend",
+    "description": "Teste prático Backend PHP - Dot Digital Group",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.3",
+        "ext-pdo": "*",
+        "ext-pdo_sqlite": "*",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "DDG\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "DDG\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test-unit": "phpunit --testsuite Unit",
+        "test-integration": "phpunit --testsuite Integration"
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
+    "minimum-stability": "stable"
+}

@@ -1,0 +1,5 @@
+.claude/
+.phpunit.cache/
+vendor/
+composer.lock
+CLAUDE.md

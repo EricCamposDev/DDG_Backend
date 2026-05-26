@@ -1,0 +1,351 @@
+openapi: 3.0.3
+info:
+  title: DDG Backend API
+  version: 1.0.0
+  description: |
+    API RESTful em PHP puro para gestão de cursos, turmas, usuários e matrículas.
+    Teste prático Backend PHP — Dot Digital Group.
+servers:
+  - url: http://localhost:8080
+    description: Servidor local (Docker)
+
+tags:
+  - name: Courses
+  - name: Classes
+  - name: Users
+  - name: Enrollments
+
+paths:
+  /courses:
+    get:
+      tags: [Courses]
+      summary: Lista cursos com pelo menos uma turma disponível
+      parameters:
+        - in: query
+          name: title
+          schema: { type: string }
+          description: Filtro por título (busca parcial, case-insensitive)
+        - in: query
+          name: theme
+          schema:
+            type: string
+            enum: [inovacao, tecnologia, marketing, empreendedorismo, agro]
+        - in: query
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Course' }
+    post:
+      tags: [Courses]
+      summary: Cria um curso
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CourseInput' }
+      responses:
+        '201':
+          description: Criado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Course' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /courses/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: integer }
+    put:
+      tags: [Courses]
+      summary: Atualiza um curso
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CourseInput' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Course' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    delete:
+      tags: [Courses]
+      summary: Exclui um curso
+      responses:
+        '204': { description: Sem conteúdo }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /courses/{courseId}/classes:
+    parameters:
+      - in: path
+        name: courseId
+        required: true
+        schema: { type: integer }
+    post:
+      tags: [Classes]
+      summary: Cria uma turma para um curso
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ClassInput' }
+      responses:
+        '201':
+          description: Criado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/ClassEntity' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /courses/{courseId}/classes/{id}:
+    parameters:
+      - in: path
+        name: courseId
+        required: true
+        schema: { type: integer }
+      - in: path
+        name: id
+        required: true
+        schema: { type: integer }
+    put:
+      tags: [Classes]
+      summary: Atualiza uma turma
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ClassInput' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/ClassEntity' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    delete:
+      tags: [Classes]
+      summary: Exclui uma turma
+      responses:
+        '204': { description: Sem conteúdo }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /users:
+    post:
+      tags: [Users]
+      summary: Cria um usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserInput' }
+      responses:
+        '201':
+          description: Criado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/User' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /users/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: integer }
+    delete:
+      tags: [Users]
+      summary: Exclui um usuário
+      responses:
+        '204': { description: Sem conteúdo }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /users/{id}/enrollments:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [Enrollments]
+      summary: Lista cursos em que o usuário está matriculado
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/UserEnrollment' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /enrollments:
+    post:
+      tags: [Enrollments]
+      summary: Matricula um usuário em uma turma
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EnrollmentInput' }
+      responses:
+        '201':
+          description: Criado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Enrollment' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+components:
+  schemas:
+    Course:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        title: { type: string, example: "Curso de PHP" }
+        description: { type: string }
+        theme:
+          type: string
+          enum: [inovacao, tecnologia, marketing, empreendedorismo, agro]
+        image_url: { type: string, format: uri }
+        created_at: { type: string }
+        updated_at: { type: string }
+
+    CourseInput:
+      type: object
+      required: [title, description, theme, image_url]
+      properties:
+        title: { type: string, example: "Curso de PHP" }
+        description: { type: string, example: "Aprenda PHP do zero" }
+        theme:
+          type: string
+          enum: [inovacao, tecnologia, marketing, empreendedorismo, agro]
+        image_url: { type: string, format: uri }
+
+    ClassEntity:
+      type: object
+      properties:
+        id: { type: integer }
+        course_id: { type: integer }
+        title: { type: string }
+        description: { type: string }
+        seats: { type: integer }
+        status:
+          type: string
+          enum: [disponivel, encerrado]
+        start_date: { type: string, format: date }
+        end_date: { type: string, format: date }
+        created_at: { type: string }
+        updated_at: { type: string }
+
+    ClassInput:
+      type: object
+      required: [title, description, seats, status, start_date, end_date]
+      properties:
+        title: { type: string }
+        description: { type: string }
+        seats: { type: integer, minimum: 0 }
+        status:
+          type: string
+          enum: [disponivel, encerrado]
+        start_date: { type: string, format: date, example: "2026-01-01" }
+        end_date: { type: string, format: date, example: "2026-12-31" }
+
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string, format: email }
+        created_at: { type: string }
+        updated_at: { type: string }
+
+    UserInput:
+      type: object
+      required: [name, email]
+      properties:
+        name: { type: string }
+        email: { type: string, format: email }
+
+    Enrollment:
+      type: object
+      properties:
+        id: { type: integer }
+        user_id: { type: integer }
+        class_id: { type: integer }
+        course_id: { type: integer }
+        created_at: { type: string }
+
+    EnrollmentInput:
+      type: object
+      required: [user_id, class_id]
+      properties:
+        user_id: { type: integer }
+        class_id: { type: integer }
+
+    UserEnrollment:
+      type: object
+      properties:
+        enrollment_id: { type: integer }
+        enrolled_at: { type: string }
+        course: { $ref: '#/components/schemas/Course' }
+        class: { $ref: '#/components/schemas/ClassEntity' }
+
+    Error:
+      type: object
+      properties:
+        error: { type: string }
+        message: { type: string }
+
+  responses:
+    NotFound:
+      description: Recurso não encontrado
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ValidationError:
+      description: Dados inválidos
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Conflict:
+      description: Conflito (e.g. e-mail duplicado)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }

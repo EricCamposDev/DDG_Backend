@@ -1,0 +1,18 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ddg_backend_api
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./:/var/www/html
+      - sqlite_data:/var/www/html/database
+    environment:
+      - APP_ENV=development
+      - DB_PATH=/var/www/html/database/database.sqlite
+    restart: unless-stopped
+
+volumes:
+  sqlite_data:
